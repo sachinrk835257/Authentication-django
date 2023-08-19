@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'auth_demo_db',  
+        'USER': 'root',  
+        'PASSWORD': 'Rk@9728211958',  
+        'HOST': 'localhost',  
+        'PORT': '3306', 
     }
 }
 
@@ -127,3 +131,13 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# send emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use appropriate backend
+EMAIL_HOST = 'sachinrk835257@gmail.com'  # Your SMTP server
+EMAIL_PORT = 587  # Port for the SMTP server
+EMAIL_USE_TLS = True  # Use TLS for secure connection
+EMAIL_HOST_USER = 'Sachin Sen'  # Your SMTP username
+EMAIL_HOST_PASSWORD = 'Rk@835257'  # Your SMTP password
+
+
