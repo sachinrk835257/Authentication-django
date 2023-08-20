@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.contrib import messages
+from authapp.send_mail import send_mail_forgot_password_link
+from authapp.models import Profile
+import uuid
 
 # Create your views here.
 
@@ -97,15 +100,20 @@ def forgot_password(request):
     title = '''forgot password'''
     if request.method == 'POST':
         email = request.POST.get('email')
-        user = User.objects.filter(email = email)
-        if not user.exists():
+        user_obj = User.objects.filter(email = email).first()   #acces only first element which found
+        if user_obj is None:
             messages.add_message(request, messages.WARNING,
                                  "USER NOT FOUND!!")
             return redirect('/auth/login/')
         
-        subject_mail = '''DJANGO-MAIL -- change password'''
-        from_user = settings.EMAIL_HOST
-        to_user = email
+        token = str(uuid.uuid4())
+        # print(user.email)
+        profile_obj = Profile.objects.get(user=user_obj.username)
+        profile_obj.forget_password_token = token
+        profile_obj.save()       
+        print("done")
+
+        
         
 
 
