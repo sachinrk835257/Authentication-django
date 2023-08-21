@@ -73,8 +73,11 @@ def logout_page(request):
     return redirect('/auth/login/')
 
 
-def change_password(request):
+def change_password(request,token):
         title = '''change password'''
+   
+        profile = Profile.objects.get(forgot_password_token = token)
+     
         if request.method == 'POST':
             username = request.POST.get('username')
             new_password = request.POST.get('new_password')
@@ -94,7 +97,7 @@ def change_password(request):
                 return redirect('/auth/change_password/')
 
             
-        return render(request, 'auth/change_password.html',{"title":title,"user_detail":user_detail})
+        return render(request, 'auth/change_password.html',{"title":title,"user_detail":profile})
 
 def forgot_password(request):
     title = '''forgot password'''
@@ -104,13 +107,13 @@ def forgot_password(request):
         if user_obj is None:
             messages.add_message(request, messages.WARNING,
                                  "USER NOT FOUND!!")
-            return redirect('/auth/login/')
+            return redirect('/auth/forgot_password/')
         
         token = str(uuid.uuid4())
-        # print(user.email)
-        profile_obj = Profile.objects.get(user=user_obj.username)
-        profile_obj.forget_password_token = token
-        profile_obj.save()       
+        print(user_obj)
+        profile_obj = Profile(user = user_obj, forget_password_token = token)
+        profile_obj.save()     
+        send_mail_forgot_password_link(user_obj,token)  
         print("done")
 
         
