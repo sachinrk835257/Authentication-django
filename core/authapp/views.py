@@ -15,20 +15,20 @@ def login_page(request):
         username = request.POST.get('email')
         password = request.POST.get('password')
         try:
-                
-            user = authenticate(username = username, password = password)
+
+            user = authenticate(username=username, password=password)
 
             if user is not None:
-                login(request,user)
+                login(request, user)
                 return redirect('/')
             else:
                 messages.add_message(request, messages.WARNING,
-                                    "INVALID CREDENTIALS!!")
+                                     "INVALID CREDENTIALS!!")
                 return redirect('/auth/login/')
         except Exception as e:
             messages.add_message(request, messages.WARNING,
                                  "{}".format(e))
-            return redirect('/auth/login/') 
+            return redirect('/auth/login/')
 
     return render(request, 'auth/login.html')
 
@@ -73,55 +73,58 @@ def logout_page(request):
     return redirect('/auth/login/')
 
 
-def change_password(request,token):
-        title = '''change password'''
-   
-        profile = Profile.objects.get(forgot_password_token = token)
-     
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            new_password = request.POST.get('new_password')
-            confirm_password = request.POST.get('confirm_password')
-            if new_password != confirm_password:
-                messages.add_message(request, messages.WARNING,
-                                 "PASSWORD MISMATCH!!")
-                return redirect('/auth/change_password/')
-            try:
-                user = User.objects.get(username = username) # change password then should get the user intead of filter
-                user.set_password(confirm_password)
-                user.save()
-                return redirect('/auth/login/')
-            except Exception as e:
-                messages.add_message(request, messages.WARNING,
-                                 "USER NOT FOUND!!")
-                return redirect('/auth/change_password/')
+def change_password(request, token):
+    title = '''change password'''
+    profile = Profile.objects.get(forget_password_token=token)
 
-            
-        return render(request, 'auth/change_password.html',{"title":title,"user_detail":profile})
+    if request.method == 'POST':
+        print("form submit")
+        username = profile.forget_user
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        print(username)
+        if new_password != confirm_password:
+            messages.add_message(request, messages.WARNING,
+                                 "PASSWORD MISMATCH!!")
+            return redirect(f'/auth/change_password/{token}/')
+            # change password then should get the user intead of filter
+        user = User.objects.get(username=username)
+        user.set_password(confirm_password)
+        user.save()
+        messages.add_message(request, messages.SUCCESS,
+                             "Password changed SUCCESFULLY")
+        return redirect(f'/auth/change_password/{token}/')
+
+    return render(request, 'auth/change_password.html', {"title": title, "user_detail": profile, "token": token})
+
 
 def forgot_password(request):
     title = '''forgot password'''
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        user_obj = User.objects.filter(email = email).first()   #acces only first element which found
-        if user_obj is None:
-            messages.add_message(request, messages.WARNING,
-                                 "USER NOT FOUND!!")
+    try:
+
+        if request.method == 'POST':
+            email = request.POST.get('email')
+
+            # acces only first element which found
+            user_obj = User.objects.get(username=email)
+            # print("1 => ",user_obj)
+            if user_obj is None:
+                messages.add_message(request, messages.WARNING,
+                                     "USER NOT FOUND!!")
+                return redirect('/auth/forgot_password/')
+
+            token = str(uuid.uuid4())
+            Profile.objects.create(forget_user=user_obj,
+                                   forget_password_token=token)
+            # print(token)
+            send_mail_forgot_password_link(user_obj, token)
+            messages.add_message(request, messages.SUCCESS,
+                                 "MAIL SENT SUCCESFULLY")
             return redirect('/auth/forgot_password/')
-        
-        token = str(uuid.uuid4())
-        print(user_obj)
-        profile_obj = Profile(user = user_obj, forget_password_token = token)
-        profile_obj.save()     
-        send_mail_forgot_password_link(user_obj,token)  
-        print("done")
 
-        
-        
-
-
-
-        
-
-        # send email verification
-    return render(request, 'auth/forgot_password.html',{"title":title})
+    except Exception as e:
+        # print(e)
+        messages.add_message(request, messages.WARNING,
+                             "USERNAME IS NOT EXISTS!!")
+        return redirect('/auth/forgot_password/')
+    return render(request, 'auth/forgot_password.html', {"title": title})
