@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+# from decouple import config
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,9 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rx05)jzy)95)iri_@pjmn41!981r9)!a50%vl=gfwi_0&ib6=u'
+# SECRET_KEY = 'django-insecure-rx05)jzy)95)iri_@pjmn41!981r9)!a50%vl=gfwi_0&ib6=u'
+SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -78,8 +82,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
         'NAME': 'auth_demo_db',  
-        'USER': 'root',  
-        'PASSWORD': 'Rk@9728211958',  
+        'USER': os.getenv('MYSQL_USER'),  
+        'PASSWORD': os.getenv('MYSQL_PASSWORD'),  
         'HOST': 'localhost',  
         'PORT': '3306', 
     }
@@ -119,7 +123,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-import os
+
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
@@ -135,8 +139,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use appropriate backend
 EMAIL_USE_TLS = True  
 EMAIL_HOST = 'smtp.gmail.com'  
-EMAIL_HOST_USER = 'your_gmail@gmail.com'  
-EMAIL_HOST_PASSWORD = '16 digit code'  
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')   
+print(EMAIL_HOST_USER,EMAIL_HOST_PASSWORD)
 EMAIL_PORT = 587  
 
 

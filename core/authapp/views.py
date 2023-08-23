@@ -125,6 +125,6 @@ def forgot_password(request):
     except Exception as e:
         # print(e)
         messages.add_message(request, messages.WARNING,
-                             "USERNAME IS NOT EXISTS!!")
+                             f"{e}")
         return redirect('/auth/forgot_password/')
     return render(request, 'auth/forgot_password.html', {"title": title})
